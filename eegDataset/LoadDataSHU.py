@@ -20,13 +20,13 @@ from scipy.signal import detrend
 from module.transform import filterBank
 
 
-def _filter(data):
-    fs = 250
-    f0 = 50
-    q = 35
-    b, a = signal.iircomb(f0, q, ftype='notch', fs=fs)
-    data = signal.filtfilt(b, a, data)
-    return data
+# def _filter(data):
+#     fs = 250
+#     f0 = 50
+#     q = 35
+#     b, a = signal.iircomb(f0, q, ftype='notch', fs=fs)
+#     data = signal.filtfilt(b, a, data)
+#     return data
 
 class Load_SHU():
     def __init__(self):
@@ -37,6 +37,7 @@ class Load_SHU():
             for i,row in enumerate(csv_reader):
                 if i == 0: continue
                 if len(row) >= 0:
+                    # get the sub_id and path
                     # 提取编号和路径
                     iSub = int(row[0])
                     iSes = int(row[1])
@@ -107,22 +108,17 @@ class Load_SHU():
         fs = 250
         epochs.resample(sfreq=fs)
 
+        # get the 4s MI data 
         # 获取实际想象的4s数据
         data = epochs.get_data()[:,:,-1000:]
-        # # 获取具体标签的逆映射字典
         reverse_event_id = {v: k for k, v in event_id.items()}
-        labels = [int(reverse_event_id[i]) for i in epochs.events[:, -1]] # 获取事件标签
+        labels = [int(reverse_event_id[i]) for i in epochs.events[:, -1]] # get the event label
 
         x = np.array(data)*1e6
-
         y = np.array(labels)-1
 
-        print(x.shape)
-        print(y.shape)
-
-        # plt.plot(abs(x[2,13,:]))
-        # plt.show()
-
+        # if use fbcnet and filter the data
+        # 如果使用fbcnet并且过滤数据
         is_fbcnet = False
         if is_fbcnet == True:
             x_all = []
@@ -135,34 +131,36 @@ class Load_SHU():
             x = np.stack(x_all, axis=0)
             x = np.transpose(x,(0, 3, 1, 2))
 
-        # trials * Chan * time
-        eeg_data = {'x_data': x,
+        eeg_data = {'x_data': x,   # trials * Chan * time
                     'y_labels': y,
-                    'fs': fs}
+                    'fs': fs}   
         return eeg_data
 
 
 def get_data_shu(subject, mode="NORM", isStandard=True, doShuffle=False):
     load_raw_data = Load_SHU()
     if mode == 'NORM':
+        # Train SET 1, Test SET 3
         # 训练集使用1,测试集使用3
         Train_session = [1]
         Test_session = [3]
         x_train_l, y_train_l, x_test_l, y_test_l = [], [], [], []
+        # get the data from the train session
+        # 从训练集中获取数据
         for session in Train_session:
             id = '{}-{}'.format(subject,session)
             eeg_data = load_raw_data.get_epochs(id=id,downsampled=4)
             x_train, y_train = eeg_data['x_data'], eeg_data['y_labels']
             x_train_l.append(x_train)
             y_train_l.append(y_train)
-
+        # get the data from the test session
+        # 从测试集中获取数据
         for session in Test_session:
             id = '{}-{}'.format(subject,session)
             eeg_data = load_raw_data.get_epochs(id=id,downsampled=4)
             x_test, y_test = eeg_data['x_data'], eeg_data['y_labels']
             x_test_l.append(x_test)
             y_test_l.append(y_test)
-
         x_train = np.concatenate(x_train_l,axis=0)
         y_train = np.concatenate(y_train_l,axis=0)
         x_test = np.concatenate(x_test_l,axis=0)
@@ -170,16 +168,13 @@ def get_data_shu(subject, mode="NORM", isStandard=True, doShuffle=False):
 
         if len(x_train.shape) == 3:
             n_trial, n_channel, n_timepoint = x_train.shape
-        elif len(x_train.shape) == 4:
+        elif len(x_train.shape) == 4:  # if do fikter bank for fbcnet
             n_trial,n_bands,n_channel, n_timepoint = x_train.shape
 
-        print("n_trial",n_trial)
         if doShuffle:
-            # 打乱
             random_indices = np.random.permutation(n_trial)
             x_train = x_train[random_indices]
             y_train = y_train[random_indices]
-
         if isStandard:
             x_train, x_test = standardize_data(x_train, x_test, n_channel)
         return x_train, y_train, x_test, y_test
@@ -207,15 +202,12 @@ def get_data_shu(subject, mode="NORM", isStandard=True, doShuffle=False):
         n_trial, n_channel, n_timepoint = x_train.shape
 
         if doShuffle:
-            # 打乱
             random_indices = np.random.permutation(n_trial)
             x_train = x_train[random_indices]
             y_train = y_train[random_indices]
 
         if isStandard:
             x_train, x_test = standardize_data(x_train, x_test, n_channel)
-        print("train_trial", x_train.shape[0])
-        print("test_trial", x_test.shape[0])
         return x_train, y_train, x_test, y_test
     else:
         raise Exception("'{}' mode is not supported yet!".format(mode))

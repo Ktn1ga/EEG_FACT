@@ -2,7 +2,7 @@
 Model Reference:
 -----------------------------------------------------
 Model Name:         EEGNet_Inception
-Repository URL:
+Repository URL:     NULL
 Original Paper:     Riyad M, Khalil M, Adib A.
                     Incep-EEGNet: A ConvNet for Motor Imagery Decoding.
                     Image and Signal Processing. 2020 Jun 5;12119:103–11.

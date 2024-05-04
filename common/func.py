@@ -3,7 +3,7 @@ from models.FBCNet import FBCNet
 from models.EEGNet_Inc import EEGNet_Inc
 from models.LMDA import LMDA
 from models.EEGConformer import Conformer
-from models.FACT import FACT
+# from models.FACT import FACT
 
 
 import torch
@@ -13,12 +13,11 @@ import numpy as np
 from sklearn.metrics import confusion_matrix,cohen_kappa_score
 import os
 import sys
-
-# sys setting
 current_path = os.path.abspath(os.path.dirname(__file__))
 rootPath = os.path.split(current_path)[0]
 sys.path.append(current_path)
 sys.path.append(rootPath)
+
 
 # Divide the validation set
 # 划分验证集
@@ -45,6 +44,8 @@ def cross_validate(x_data, y_label, kfold, data_seed=2023):
         yield split_train_dataset, split_validation_dataset,split_train_index,split_validation_index
 
 
+# Calculate the kappa coefficient
+# 计算kappa系数
 def kappa_from_confusion_matrix(confusion_matrix):
     # Total number of instances
     total = np.sum(confusion_matrix)
@@ -60,6 +61,7 @@ def kappa_from_confusion_matrix(confusion_matrix):
     # Kappa calculation
     kappa = (observed - expected) / (total - expected)
     return kappa
+
 
 # verification model
 # 验证模型
@@ -88,12 +90,14 @@ def validate_model(model, dataset, device, losser, batch_size=128, n_calsses=4):
         kappa_score = kappa_from_confusion_matrix(confusion_val)
     return loss_val, accuracy_val, confusion_val,kappa_score
 
+
 # get model
 # 获取模型结构
 def getModel(model_name,device,nChan=22,nTime=1000,nClass = 4):
     # Select the model
     if model_name == 'FACT':
-        model = FACT(nChan=nChan, nTime=nTime, nClass=nClass)
+        raise Exception("'{}' model is not supported yet!".format(model_name))
+        # model = FACT(nChan=nChan, nTime=nTime, nClass=nClass)
     elif model_name == 'EEGNet':
         model = EEGNet(chunk_size=nTime,
                        num_electrodes=nChan,

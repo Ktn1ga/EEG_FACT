@@ -99,7 +99,6 @@ class SafelogModule(nn.Module):
     def forward(self, x, eps=1e-6):
         return torch.log(torch.clamp(x, min=eps))
 
-#%%
 class EEGNet_util(nn.Module):
     def __init__(self, in_channel = 1,eeg_chans=22, dropoutRate=0.5, kerSize=64, kerSize_Tem=16, F1=8, D=2, poolDept=8, poolSeq=8, bias=False):
         super(EEGNet_util, self).__init__()

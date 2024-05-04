@@ -98,6 +98,7 @@ def get_data_2a(data_path, subject, mode="NORM", isStandard=True,low_f = None,hi
         n_trial, n_channel, n_timepoint = x_train.shape
         print(n_trial,n_channel,n_timepoint)
 
+        # shuffle
         # 打乱
         random_indices = np.random.permutation(n_trial)
         x_train = x_train[random_indices]

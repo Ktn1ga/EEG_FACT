@@ -4,7 +4,8 @@ import copy
 import datetime
 from common.func import *
 
-
+# Cross-session experiment
+# 跨会话实验
 def exp_cross_session(subject, losser, save_path, model_name,
                       frist_epoch, eary_stop_epoch, second_epoch,
                       kfolds, batch_size, device,
@@ -24,25 +25,24 @@ def exp_cross_session(subject, losser, save_path, model_name,
         logger.info(info + '\n')
 
         train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-
+        # init model
         # 初始化
         model = getModel(model_name=model_name, device=device, nChan=nChan, nTime=nTime, nClass=nClass)
-
         optimizer = torch.optim.Adam(model.parameters(), lr=1e-3, betas=(0.9, 0.999), weight_decay=1e-3)
 
-        if model_name == "Conformer":
+        if model_name == "Conformer":  # as the original paper
             optimizer = torch.optim.Adam(model.parameters(), lr=0.0002, betas=(0.5, 0.999))
 
-        # scheduler = None # torch.optim.lr_scheduler.StepLR(optimizer,gamma=0.99,step_size=10)
+        # scheduler = torch.optim.lr_scheduler.StepLR(optimizer,gamma=0.99,step_size=10)
         # scheduler_adap = None
 
-        ### First step
         best_loss_kfold = np.inf
         best_loss_kfold_acc = 0
         best_acc_kfold = 0
         best_acc_kfold_loss = np.inf
         mini_loss = None
         remaining_epoch = eary_stop_epoch
+        # First stage
         for iter in range(frist_epoch):
             loss_train = 0
             accuracy_train = 0
@@ -54,14 +54,14 @@ def exp_cross_session(subject, losser, save_path, model_name,
                 radio = 1.0 * b / a
                 inputs = inputs.to(device)
                 target = target.to(device)
-                optimizer.zero_grad()  # 清空梯度
+                optimizer.zero_grad()  # Clears the gradients of all optimized
                 output = model(inputs)
                 loss = losser(output, target)
                 accuracy_train += torch.sum(torch.argmax(output, dim=1) == target, dtype=torch.float32) / (
                         radio * len(train_dataset))
                 loss_train += loss.detach().item() / len(train_dataloader)
-                loss.backward()  # 反向传播和计算梯度
-                optimizer.step()  # 更新参数
+                loss.backward()
+                optimizer.step()  
             loss_val, accuracy_val, confusion_val, kappa_val = validate_model(model, valid_dataset, device, losser,
                                                                               n_calsses=nClass)
             remaining_epoch = remaining_epoch - 1
@@ -95,14 +95,13 @@ def exp_cross_session(subject, losser, save_path, model_name,
                         best_loss_kfold_acc, best_acc_kfold, best_acc_kfold_loss, remaining_epoch)
             logger.info('\n' + info + '\n')
 
-        info = f'Early stopping at Epoch {iter},and retrain the Net using both the training data and validation data.'
+        info = f'Early stopping at Epoch {iter}, retrain the Net using both the training data and validation data.'
         print(info)
         logger.info(info + '\n')
-
-        ### Second step
+        
+         # Second stage
         model.load_state_dict(best_model)
         optimizer.load_state_dict(optimizer_state)
-
         for iter in range(second_epoch):
             model.train()
             x_train_all, y_train_all = torch.FloatTensor(x_train), torch.LongTensor(y_train)
@@ -130,7 +129,8 @@ def exp_cross_session(subject, losser, save_path, model_name,
             if loss_val < mini_loss:
                 break
 
-        # save model.
+        # save model
+        # 保存模型
         file_name1 = '{}_sub{}_fold{}_acc{:.4}_best_model_step1.pth'.format(model_name, subject, kfold, best_acc_kfold)
         print(file_name1)
         logger.info(file_name1)
@@ -151,7 +151,7 @@ def exp_cross_session(subject, losser, save_path, model_name,
         test_index = torch.LongTensor([i for i, _ in enumerate(y_test)])
         testdataset = TensorDataset(x_test, y_test, test_index)
 
-        # 测试1
+        # TEST-1
         netTest = torch.load(os.path.join(save_path, file_name1))
         model.load_state_dict(netTest, strict=False)
         loss_val, accuracy_val, confusion_val, kappa_val = validate_model(model, testdataset, device, losser,
@@ -162,7 +162,7 @@ def exp_cross_session(subject, losser, save_path, model_name,
         accuracy_val_list1.append(accuracy_val.to('cpu').numpy())
         kappa_val_list1.append(kappa_val)
 
-        # 测试2
+        # TEST-2
         netTest = torch.load(os.path.join(save_path, file_name2))
         model.load_state_dict(netTest, strict=False)
         loss_val, accuracy_val, confusion_val, kappa_val = validate_model(model, testdataset, device, losser,
@@ -173,7 +173,8 @@ def exp_cross_session(subject, losser, save_path, model_name,
         accuracy_val_list2.append(accuracy_val.to('cpu').numpy())
         kappa_val_list2.append(kappa_val)
 
-    # after k-fold
+    # after k-fold record the average accuracy
+    # 记录平均准确率
     info = f"Avg_eval_Acc : {avg_eval_acc * 100 / kfolds:4f}"
     logger.info(info + '\n')
 
