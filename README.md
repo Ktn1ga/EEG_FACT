@@ -1,7 +1,6 @@
 # FACT-Net: a Frequency Adapter CNN with Temporal-periodicity Inception for Fast and Accurate MI-EEG Decoding
 
 ## Model
-The code of FACT-Net will be published after being accepted.
 
 ![Network Architecture](fig/Fig_ALL.png)
 
