@@ -1,8 +1,20 @@
 # FACT-Net: a Frequency Adapter CNN with Temporal-periodicity Inception for Fast and Accurate MI-EEG Decoding
 
+## Model
+
+![Network Architecture](fig/Fig_ALL.png)
+
+
+## Requirements
+- Python 3.10
+- Pytorch 1.10
+
+
+## Citation
 Hope this code can be useful. If you use this code in a scientific publication, please cite us as:
+
 ```
-@ARTICLE{10755982,
+@ARTICLE{FACTNet4MIEEG,
   author={Ke, Sixiong and Yang, Banghua and Qin, Yiyang and Rong, Fenqi and Zhang, Jiayang and Zheng, Yanyan},
   journal={IEEE Transactions on Neural Systems and Rehabilitation Engineering}, 
   title={FACT-Net: A Frequency Adapter CNN With Temporal-Periodicity Inception for Fast and Accurate MI-EEG Decoding}, 
@@ -13,15 +25,6 @@ Hope this code can be useful. If you use this code in a scientific publication, 
   keywords={Feature extraction;Electroencephalography;Frequency-domain analysis;Decoding;Accuracy;Discrete Fourier transforms;Convolutional neural networks;Brain modeling;Convolution;Motors;Brain-computer interface (BCI);motor-imagery (MI);convolutional neural networks (CNN);electroencephalogram (EEG);frequency domain analysis},
   doi={10.1109/TNSRE.2024.3499998}}
 ```
-
-## Model
-
-![Network Architecture](fig/Fig_ALL.png)
-
-
-## Requirements
-- Python 3.10
-- Pytorch 1.10
 
 <!-- ## Datasets
 - Dataset A: SHU_dataset
@@ -37,3 +40,4 @@ Result of Dataset A
 Result of Dataset B
 
 ![Result of Dataset B](fig/result_B.png#pic_center) -->
+
