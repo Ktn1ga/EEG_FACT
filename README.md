@@ -7,7 +7,7 @@
 
 ## Requirements
 - Python 3.10
-- Pytorch 1.10
+- Pytorch 1.13
 
 
 ## Citation

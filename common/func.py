@@ -3,7 +3,7 @@ from models.FBCNet import FBCNet
 from models.EEGNet_Inc import EEGNet_Inc
 from models.LMDA import LMDA
 from models.EEGConformer import Conformer
-# from models.FACT import FACT
+from models.FACT import FACT
 
 
 import torch
@@ -96,8 +96,8 @@ def validate_model(model, dataset, device, losser, batch_size=128, n_calsses=4):
 def getModel(model_name,device,nChan=22,nTime=1000,nClass = 4):
     # Select the model
     if model_name == 'FACT':
-        raise Exception("'{}' model is not supported yet!".format(model_name))
-        # model = FACT(nChan=nChan, nTime=nTime, nClass=nClass)
+        # raise Exception("'{}' model is not supported yet!".format(model_name))
+        model = FACT(nChan=nChan, nTime=nTime, nClass=nClass)
     elif model_name == 'EEGNet':
         model = EEGNet(chunk_size=nTime,
                        num_electrodes=nChan,

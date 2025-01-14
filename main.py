@@ -17,11 +17,11 @@ sys.path.append(rootPath)
 
 # DATA path set
 # 数据路径设置
-data_path = "F:\EEGPT\EEG_Data\data2"
+data_path = "E:\EEGPT\EEG_Data\data2"
 
 # Model set
 # 模型选择
-model_name = 'EEGNet'   # [FACT, EEGNet, FBCNet, EEG_Inc, LMDA, Conformer]
+model_name = 'FACT'   # [FACT, EEGNet, FBCNet, EEG_Inc, LMDA, Conformer]
 
 # Data set
 # 数据集选择
